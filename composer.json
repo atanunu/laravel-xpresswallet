@@ -24,7 +24,7 @@
   "larastan/larastan": "^2.9",
   "phpstan/phpstan": "^1.11",
   "roave/security-advisories": "dev-latest",
-  "infection/infection": "^0.29"
+  "infection/infection": "^0.29 || ^0.31"
   },
   "autoload": {
     "psr-4": {
