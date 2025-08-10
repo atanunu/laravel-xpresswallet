@@ -15,6 +15,8 @@ jobs:
           php-version: '8.3'
           tools: composer:v2
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
+        run: |
+          composer config --no-plugins allow-plugins.infection/extension-installer true
+          composer install --no-interaction --prefer-dist --no-progress
       - name: Composer Audit
         run: composer audit --format=plain || true

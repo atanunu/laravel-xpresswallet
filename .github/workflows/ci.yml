@@ -35,7 +35,9 @@ jobs:
             composer-${{ matrix.php }}-
 
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
+        run: |
+          composer config --no-plugins allow-plugins.infection/extension-installer true
+          composer install --no-interaction --prefer-dist --no-progress
 
       - name: Lint (Pint)
         run: |
@@ -67,7 +69,9 @@ jobs:
           tools: composer:v2
           extensions: mbstring, json, dom, curl, pdo, sqlite, pdo_sqlite
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
+        run: |
+          composer config --no-plugins allow-plugins.infection/extension-installer true
+          composer install --no-interaction --prefer-dist --no-progress
       - name: Run tests with coverage
         env:
           DB_CONNECTION: sqlite
