@@ -2,9 +2,9 @@
 
 ![CI](https://github.com/atanunu/laravel-xpresswallet/actions/workflows/ci.yml/badge.svg)
 ![Coverage](https://codecov.io/gh/atanunu/laravel-xpresswallet/branch/main/graph/badge.svg)
-![CodeQL](https://github.com/atanunu/laravel-xpresswallet/actions/workflows/codeql.yml/badge.svg)
 ![Security Audit](https://github.com/atanunu/laravel-xpresswallet/actions/workflows/security-audit.yml/badge.svg)
 ![License](https://img.shields.io/github/license/atanunu/laravel-xpresswallet)
+[![Endpoints Dashboard](https://img.shields.io/badge/docs-endpoints%20dashboard-blue)](https://atanunu.github.io/laravel-xpresswallet/)
 
 A Laravel package to integrate with Providus Xpress Wallet API. It handles:
 * Login and token refresh (X-Access-Token / X-Refresh-Token)
@@ -23,6 +23,7 @@ A Laravel package to integrate with Providus Xpress Wallet API. It handles:
 * Pruning command for old logs & limiting token history
 * Publishable config & migrations
 * Testbench-powered tests, GitHub Actions CI, PHPStan level 8, mutation testing config
+* Public endpoint coverage dashboard: https://atanunu.github.io/laravel-xpresswallet/
 
 ## Installation
 
@@ -239,7 +240,7 @@ updates:
 Recommendations:
 - Add `roave/security-advisories` (conflict package) in `require-dev` for vulnerable dependency prevention.
 - Run `composer audit` in CI (Composer 2.4+).
-- Consider a GitHub CodeQL workflow for PHP.
+- CodeQL workflow is currently disabled pending general availability for PHP; rely on PHPStan + Infection.
 
 ## Release Process
 
