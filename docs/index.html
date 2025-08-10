@@ -1,0 +1,126 @@
+<!-- GitHub Pages copy of endpoint coverage dashboard. Source: dev-documentation/endpoints-overview.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XpressWallet / Providus API Endpoint Coverage</title>
+  <meta name="description" content="Coverage dashboard: SDK implementation vs Providus Xpress Wallet API endpoints." />
+  <link rel="icon" href="data:,">
+  <style>
+    :root { --bg:#f5f7fb; --panel:#ffffff; --panel-alt:#f1f4f9; --border:#d9e1ea; --text:#1f2a37; --muted:#65758a; --ok-bg:#dcfce7; --ok-fg:#166534; --todo-bg:#fee2e2; --todo-fg:#b91c1c; --partial-bg:#dbeafe; --partial-fg:#1d4ed8; --missing-bg:#fef3c7; --missing-fg:#92400e; --accent:#4f46e5; --accent-grad:linear-gradient(90deg,#6366f1,#8b5cf6); --badge-radius:14px; --shadow:0 2px 4px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.05); --code-bg:#eef2f7; --scrollbar:#c4ced8; }
+    [data-theme="dark"] { --bg:#0f1115; --panel:#1b1f25; --panel-alt:#222831; --border:#2d3642; --text:#f5f7fa; --muted:#9aa4b1; --ok-bg:#153f2b; --ok-fg:#4ade80; --todo-bg:#3d1d1d; --todo-fg:#f87171; --partial-bg:#1e3a5f; --partial-fg:#60a5fa; --missing-bg:#3f2e12; --missing-fg:#fbbf24; --accent:#6366f1; --accent-grad:linear-gradient(90deg,#6366f1,#8b5cf6); --code-bg:#222c37; --scrollbar:#33404f; --shadow:0 2px 4px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3); }
+    * { box-sizing:border-box; }
+    body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif; margin:0; background:var(--bg); color:var(--text); line-height:1.42; }
+    header { padding:1.4rem 2rem 1.2rem; background:var(--panel); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:80; box-shadow:var(--shadow); }
+    h1 { margin:0 0 .6rem; font-size:1.55rem; background:var(--accent-grad); -webkit-background-clip:text; background-clip:text; color:transparent; letter-spacing:.5px; }
+    p.lead { margin:.3rem 0 1rem; color:var(--muted); font-size:.9rem; }
+    .toolbar { display:flex; flex-wrap:wrap; gap:.9rem; align-items:center; }
+    input[type=search]{ background:var(--panel-alt); border:1px solid var(--border); color:var(--text); padding:.55rem .75rem; border-radius:7px; min-width:250px; box-shadow:inset 0 0 0 1px transparent; transition:.18s; }
+    input[type=search]:focus{ outline:none; box-shadow:inset 0 0 0 1px var(--accent); }
+    .filters { display:flex; gap:.55rem; flex-wrap:wrap; }
+    .filters label { display:flex; align-items:center; gap:.4rem; background:var(--panel-alt); padding:.4rem .7rem; border:1px solid var(--border); border-radius:20px; cursor:pointer; font-size:.7rem; font-weight:500; }
+    .filters input { accent-color:var(--accent); }
+    .summary-grid { display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); margin:1rem 0 .2rem; }
+    .summary-card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:.75rem .85rem; position:relative; overflow:hidden; box-shadow:var(--shadow); }
+    .summary-card h3 { margin:0 0 .35rem; font-size:.65rem; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+    .summary-card .value { font-size:1.15rem; font-weight:600; }
+    .progress-wrap { margin-top:.4rem; background:var(--panel-alt); border:1px solid var(--border); height:8px; border-radius:12px; overflow:hidden; }
+    .progress { height:100%; background:var(--accent-grad); width:0; transition:width .6s ease; }
+    main { padding:1.25rem 2rem 3rem; max-width:1920px; margin:0 auto; }
+    section.group-section { margin-bottom:2.75rem; }
+    section.group-section h2 { margin:0 0 .75rem; font-size:1.05rem; letter-spacing:.5px; display:flex; align-items:center; gap:.6rem; }
+    section.group-section h2 .small { font-size:.6rem; letter-spacing:1px; text-transform:uppercase; font-weight:600; padding:.2rem .5rem; border-radius:6px; background:var(--panel-alt); border:1px solid var(--border); color:var(--muted); }
+    table { border-collapse:separate; border-spacing:0; width:100%; font-size:.72rem; background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; box-shadow:var(--shadow); }
+    thead th { background:var(--panel-alt); padding:7px 10px; text-align:left; font-weight:600; letter-spacing:.5px; border-bottom:1px solid var(--border); position:sticky; top:calc(76px); z-index:60; }
+    tbody tr { transition:background .15s ease; }
+    tbody tr:hover { background:var(--panel-alt); }
+    th, td { vertical-align:top; }
+    td { padding:7px 10px; border-bottom:1px solid var(--border); }
+    tbody tr:last-child td { border-bottom:0; }
+    code { background:var(--code-bg); padding:3px 6px; border-radius:5px; font-size:.68rem; display:inline-block; max-width:260px; overflow:hidden; text-overflow:ellipsis; }
+    .badge { display:inline-flex; align-items:center; gap:4px; font-weight:600; padding:3px 10px 4px; font-size:.58rem; letter-spacing:.5px; border-radius:var(--badge-radius); text-transform:uppercase; border:1px solid transparent; white-space:nowrap; }
+    .ok.badge { background:var(--ok-bg); color:var(--ok-fg); }
+    .todo.badge { background:var(--todo-bg); color:var(--todo-fg); }
+    .partial.badge { background:var(--partial-bg); color:var(--partial-fg); }
+    .missing.badge { background:var(--missing-bg); color:var(--missing-fg); }
+    .notes { max-width:320px; }
+    .hidden { display:none !important; }
+    nav#group-nav { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.5rem; }
+    nav#group-nav a { background:var(--panel-alt); padding:.45rem .65rem; border:1px solid var(--border); border-radius:7px; font-size:.58rem; text-decoration:none; color:var(--muted); font-weight:600; letter-spacing:.5px; transition:.16s; }
+    nav#group-nav a:hover { color:var(--text); border-color:var(--accent); }
+    .theme-toggle { background:var(--panel-alt); border:1px solid var(--border); padding:.5rem .85rem; border-radius:8px; color:var(--text); cursor:pointer; font-size:.65rem; font-weight:600; letter-spacing:.5px; display:flex; align-items:center; gap:.45rem; }
+    .theme-toggle:hover { border-color:var(--accent); }
+    footer { padding:2rem; font-size:.65rem; color:var(--muted); text-align:center; }
+    .fade { color:var(--muted); font-weight:400; }
+    @media (max-width:1200px){ table { font-size:.64rem; } .notes { max-width:260px; } }
+    @media (max-width:900px){ thead th:nth-child(5), thead th:nth-child(6), td:nth-child(5), td:nth-child(6){ display:none; } .notes{ max-width:180px; } }
+    ::-webkit-scrollbar { width:10px; height:10px; }
+    ::-webkit-scrollbar-track { background:var(--panel-alt); }
+    ::-webkit-scrollbar-thumb { background:var(--scrollbar); border-radius:6px; }
+  </style>
+</head>
+<body data-theme="dark">
+<header>
+  <h1>Providus (Xpress Wallet) API Endpoint Coverage</h1>
+  <p class="lead">Dynamic snapshot of Postman collection vs SDK. Toggle theme, filter, and review per-group coverage & progress.</p>
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Search path, summary, notes... (/ to focus)" aria-label="Search endpoints" />
+    <div class="filters" id="status-filters">
+      <label><input type="checkbox" value="ok" checked /> <span class="badge ok">Implemented</span></label>
+      <label><input type="checkbox" value="partial" checked /> <span class="badge partial">Partial</span></label>
+      <label><input type="checkbox" value="missing" checked /> <span class="badge missing">Planned</span></label>
+      <label><input type="checkbox" value="todo" checked /> <span class="badge todo">Not Implemented</span></label>
+    </div>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">🌙 Dark</button>
+  </div>
+  <div class="summary-grid" id="global-summary"></div>
+  <div class="progress-wrap"><div class="progress" id="global-progress"></div></div>
+  <nav id="group-nav" aria-label="Groups"></nav>
+</header>
+<main id="content"></main>
+<footer>&copy; <span id="year"></span> XpressWallet SDK Coverage Report • <a href="https://github.com/atanunu/laravel-xpresswallet" style="color:var(--accent);text-decoration:none;">GitHub</a></footer>
+<script>
+  (function(){
+    const endpoints = [];
+    endpoints.push({group:'Info', method:'GET', path:'/auth/login', summary:'Login', payload:'{ email, password }', response:'{ accessToken }', status:'ok', sdk:'XpressWalletClient::login()', notes:'Subset view – update from source for full list.'});
+    const q = (s,ctx=document)=>ctx.querySelector(s);
+    const qa = (s,ctx=document)=>Array.from(ctx.querySelectorAll(s));
+    const content = q('#content');
+    const searchInput = q('#search');
+    const statusFilterContainer = q('#status-filters');
+    const globalSummary = q('#global-summary');
+    const groupNav = q('#group-nav');
+    const progressBar = q('#global-progress');
+    const themeToggle = q('#themeToggle');
+    const yearEl = q('#year'); yearEl.textContent = new Date().getFullYear();
+    const groupOrder = [...new Set(endpoints.map(e=>e.group))];
+    function build(){
+      content.innerHTML=''; groupNav.innerHTML='';
+      groupOrder.forEach(group => {
+        const rows = endpoints.filter(e=>e.group===group); if(!rows.length) return;
+        const stats = rows.reduce((acc,r)=>{ acc[r.status]=(acc[r.status]||0)+1; return acc; },{}); const total = rows.length; const implemented = stats.ok||0;
+        const section = document.createElement('section'); section.className='group-section'; section.id='group-'+group.toLowerCase();
+        const h2=document.createElement('h2'); h2.innerHTML=`${group} <span class="small">${implemented}/${total}</span>`; section.appendChild(h2);
+        const table=document.createElement('table'); table.innerHTML='<thead><tr><th>HTTP</th><th>Path</th><th>Summary</th><th>Payload</th><th>Response</th><th>Status</th><th>SDK</th><th>Notes</th></tr></thead>';
+        const tb=document.createElement('tbody');
+        rows.forEach(r=>{ const tr=document.createElement('tr'); tr.dataset.status=r.status; tr.innerHTML=`<td>${r.method}</td><td><code>${r.path}</code></td><td>${r.summary}</td><td>${r.payload}</td><td>${r.response}</td><td><span class="badge ${r.status}">${r.status}</span></td><td>${r.sdk}</td><td class="notes">${r.notes||''}</td>`; tb.appendChild(tr); });
+        table.appendChild(tb); section.appendChild(table); content.appendChild(section);
+        const a=document.createElement('a'); a.href='#'+section.id; a.textContent=group; groupNav.appendChild(a);
+      });
+      computeGlobal();
+    }
+    function computeGlobal(){
+      const counts={ok:0,partial:0,missing:0,todo:0}; endpoints.forEach(e=>{ if(counts[e.status]!==undefined) counts[e.status]++; });
+      const total=endpoints.length; const implemented=counts.ok; const percent=total?Math.round((implemented/total)*100):0;
+      globalSummary.innerHTML=''; Object.entries(counts).forEach(([k,v])=>{ const card=document.createElement('div'); card.className='summary-card'; card.innerHTML=`<h3>${k}</h3><div class="value">${v}</div><div class="fade">${total?Math.round((v/total)*100):0}%</div>`; globalSummary.appendChild(card); });
+      const compCard=document.createElement('div'); compCard.className='summary-card'; compCard.innerHTML=`<h3>Coverage</h3><div class="value">${percent}%</div><div class="fade">${implemented}/${total}</div>`; globalSummary.appendChild(compCard); progressBar.style.width=percent+'%';
+    }
+    function setTheme(theme){ document.body.setAttribute('data-theme', theme); localStorage.setItem('xw-theme', theme); themeToggle.textContent = theme==='dark'?'🌙 Dark':'☀️ Light'; }
+    const stored=localStorage.getItem('xw-theme'); const prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches; setTheme(stored||(prefersDark?'dark':'light'));
+    themeToggle.addEventListener('click',()=>{ setTheme(document.body.getAttribute('data-theme')==='dark'?'light':'dark'); });
+    build();
+  })();
+</script>
+</body>
+</html>
