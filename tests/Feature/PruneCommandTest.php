@@ -1,22 +1,23 @@
 <?php
 
-use Illuminate\Support\Facades\Artisan;
 use Atanunu\XpressWallet\Models\ApiCallLog;
 use Atanunu\XpressWallet\Models\XpressToken;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 
-it('prunes old logs and excess tokens', function() {
+it('prunes old logs and excess tokens', function () {
     // create older logs
     ApiCallLog::query()->create([
         'idempotency_key' => (string) Str::uuid(),
-        'method' => 'GET', 'url' => 't','succeeded' => true,
+        'method' => 'GET', 'url' => 't', 'succeeded' => true,
     ]);
     $log = ApiCallLog::first();
-    $log->created_at = Carbon::now()->subDays(400); $log->save();
+    $log->created_at = Carbon::now()->subDays(400);
+    $log->save();
 
     // create many tokens
-    foreach(range(1,60) as $i) {
+    foreach (range(1, 60) as $i) {
         XpressToken::query()->create(['access_token' => 'a'.$i, 'refresh_token' => 'r'.$i]);
     }
 

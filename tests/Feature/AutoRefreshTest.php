@@ -1,13 +1,13 @@
 <?php
 
+use Atanunu\XpressWallet\Http\Client\XpressWalletClient;
+use Atanunu\XpressWallet\Services\TokenStore;
+use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Client;
-use Atanunu\XpressWallet\Http\Client\XpressWalletClient;
-use Atanunu\XpressWallet\Services\TokenStore;
 
-it('auto-refreshes on 401 and retries original request', function() {
+it('auto-refreshes on 401 and retries original request', function () {
     // First ensure we have initial tokens
     $loginMock = new MockHandler([
         new Response(200, ['X-Access-Token' => 'a1', 'X-Refresh-Token' => 'r1'], json_encode(['status' => true])),

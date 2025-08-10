@@ -2,10 +2,10 @@
 
 namespace Atanunu\XpressWallet\Http\Middleware;
 
+use Atanunu\XpressWallet\Models\WebhookEvent;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Atanunu\XpressWallet\Models\WebhookEvent;
 
 class VerifyXpressWebhook
 {
@@ -22,7 +22,10 @@ class VerifyXpressWebhook
             /** @var array<int,string|null> $rawHeader */
             $sig = '';
             foreach ($rawHeader as $candidate) {
-                if ($candidate !== null) { $sig = $candidate; break; }
+                if ($candidate !== null) {
+                    $sig = $candidate;
+                    break;
+                }
             }
         } else {
             $sig = $rawHeader;
@@ -35,7 +38,7 @@ class VerifyXpressWebhook
             return response('Invalid signature timestamp', 400);
         }
         $tolerance = (int) config('xpresswallet.webhook.tolerance_seconds', 300);
-        if (abs(time() - (int)$timestamp) > $tolerance) {
+        if (abs(time() - (int) $timestamp) > $tolerance) {
             return response('Signature timestamp expired', 400);
         }
 

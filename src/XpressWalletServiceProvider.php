@@ -2,11 +2,11 @@
 
 namespace Atanunu\XpressWallet;
 
-use Illuminate\Support\ServiceProvider;
-use GuzzleHttp\Client as Guzzle;
-use Atanunu\XpressWallet\Http\Client\XpressWalletClient;
 use Atanunu\XpressWallet\Contracts\XpressWalletClientContract;
+use Atanunu\XpressWallet\Http\Client\XpressWalletClient;
 use Atanunu\XpressWallet\Services\TokenStore;
+use GuzzleHttp\Client as Guzzle;
+use Illuminate\Support\ServiceProvider;
 
 class XpressWalletServiceProvider extends ServiceProvider
 {
@@ -14,7 +14,7 @@ class XpressWalletServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../config/xpresswallet.php', 'xpresswallet');
 
-        $this->app->singleton(TokenStore::class, function($app) {
+        $this->app->singleton(TokenStore::class, function ($app) {
             return new TokenStore(
                 cache: $app['cache']->store(),
                 db: $app['db'], // DatabaseManager acceptable; TokenStore expects DatabaseManager alias
@@ -22,7 +22,7 @@ class XpressWalletServiceProvider extends ServiceProvider
             );
         });
 
-    $this->app->singleton(XpressWalletClientContract::class, function($app) {
+        $this->app->singleton(XpressWalletClientContract::class, function ($app) {
             $cfg = $app['config']->get('xpresswallet');
             $guzzle = new Guzzle([
                 'base_uri' => rtrim($cfg['base_url'], '/').'/',

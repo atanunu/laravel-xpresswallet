@@ -1,15 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Http\Request;
-use Atanunu\XpressWallet\Models\WebhookEvent;
 use Atanunu\XpressWallet\Http\Middleware\VerifyXpressWebhook;
+use Atanunu\XpressWallet\Models\WebhookEvent;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Route;
 
-it('accepts valid webhook and stores event', function() {
+it('accepts valid webhook and stores event', function () {
     Config::set('xpresswallet.webhook.secret', 'testsecret');
 
-    Route::post('/_test/webhook', function(Request $r) {
+    Route::post('/_test/webhook', function (Request $r) {
         return response()->json(['ok' => true]);
     })->middleware(VerifyXpressWebhook::class);
 
@@ -26,10 +26,10 @@ it('accepts valid webhook and stores event', function() {
     expect(WebhookEvent::count())->toBe(1);
 });
 
-it('rejects invalid signature', function() {
+it('rejects invalid signature', function () {
     Config::set('xpresswallet.webhook.secret', 'testsecret');
 
-    Route::post('/_test/webhook2', function(Request $r) {
+    Route::post('/_test/webhook2', function (Request $r) {
         return response()->json(['ok' => true]);
     })->middleware(VerifyXpressWebhook::class);
 

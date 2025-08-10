@@ -31,6 +31,7 @@ class Merchant
     public function resendVerification(?string $email = null): array
     {
         $payload = $email ? ['email' => $email] : [];
+
         return $this->root->post('merchant/verify/resend', $payload);
     }
 
@@ -38,6 +39,7 @@ class Merchant
     public function resendActivation(?string $email = null): array
     {
         $payload = $email ? ['email' => $email] : [];
+
         return $this->root->post('merchant/resend-activation-code', $payload);
     }
 

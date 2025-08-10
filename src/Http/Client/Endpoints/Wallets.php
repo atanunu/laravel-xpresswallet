@@ -10,7 +10,7 @@ class Wallets
     public function __construct(protected XpressWalletClient $root, protected Guzzle $http) {}
 
     /**
-     * @param array<string,mixed> $payload
+     * @param  array<string,mixed>  $payload
      * @return array<string,mixed>
      */
     public function create(array $payload): array
@@ -31,7 +31,7 @@ class Wallets
     }
 
     /**
-     * @param array<string,mixed> $payload
+     * @param  array<string,mixed>  $payload
      * @return array<string,mixed>
      */
     public function credit(array $payload): array
@@ -40,7 +40,7 @@ class Wallets
     }
 
     /**
-     * @param array<string,mixed> $payload
+     * @param  array<string,mixed>  $payload
      * @return array<string,mixed>
      */
     public function debit(array $payload): array
@@ -61,7 +61,7 @@ class Wallets
     }
 
     /**
-     * @param array<string,mixed> $payload
+     * @param  array<string,mixed>  $payload
      * @return array<string,mixed>
      */
     public function batchCredit(array $payload): array
@@ -70,7 +70,7 @@ class Wallets
     }
 
     /**
-     * @param array<string,mixed> $payload
+     * @param  array<string,mixed>  $payload
      * @return array<string,mixed>
      */
     public function batchDebit(array $payload): array
@@ -79,7 +79,7 @@ class Wallets
     }
 
     /**
-     * @param array<string,mixed> $payload
+     * @param  array<string,mixed>  $payload
      * @return array<string,mixed>
      */
     public function customerBatchCredit(array $payload): array

@@ -2,20 +2,21 @@
 
 namespace Atanunu\XpressWallet\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
 use Atanunu\XpressWallet\Models\ApiCallLog;
 use Atanunu\XpressWallet\Models\WebhookEvent;
 use Atanunu\XpressWallet\Models\XpressToken;
+use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 
 class XpressPruneCommand extends Command
 {
     protected $signature = 'xpress:prune {--days=} {--dry-run}';
+
     protected $description = 'Prune old Xpress Wallet logs, webhook events, and excess tokens';
 
     public function handle(): int
     {
-        $days = (int)($this->option('days') ?? config('xpresswallet.retention_days', 90));
+        $days = (int) ($this->option('days') ?? config('xpresswallet.retention_days', 90));
         $cutoff = Carbon::now()->subDays($days);
         $dry = $this->option('dry-run');
 
@@ -23,10 +24,10 @@ class XpressPruneCommand extends Command
 
         $totals = [];
         foreach ([ApiCallLog::class => 'api_call_logs', WebhookEvent::class => 'webhook_events'] as $model => $label) {
-            $count = $model::query()->where('created_at','<',$cutoff)->count();
+            $count = $model::query()->where('created_at', '<', $cutoff)->count();
             $totals[$label] = $count;
             if (! $dry && $count) {
-                $model::query()->where('created_at','<',$cutoff)->chunkById(500, function($chunk) use ($model) {
+                $model::query()->where('created_at', '<', $cutoff)->chunkById(500, function ($chunk) use ($model) {
                     $ids = $chunk->pluck('id');
                     $model::query()->whereIn('id', $ids)->delete();
                 });
@@ -49,6 +50,7 @@ class XpressPruneCommand extends Command
         }
 
         $this->info('Prune complete.');
+
         return self::SUCCESS;
     }
 }

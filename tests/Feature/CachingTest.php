@@ -1,15 +1,15 @@
 <?php
 
+use Atanunu\XpressWallet\Http\Client\XpressWalletClient;
+use Atanunu\XpressWallet\Services\TokenStore;
+use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Client;
-use Atanunu\XpressWallet\Http\Client\XpressWalletClient;
-use Atanunu\XpressWallet\Services\TokenStore;
 
 it('caches get responses when enabled', function () {
     config()->set('xpresswallet.cache_get_ttl', 60);
-    app(TokenStore::class)->put('acc','ref');
+    app(TokenStore::class)->put('acc', 'ref');
     $mock = new MockHandler([
         new Response(200, [], json_encode(['value' => 1])),
         new Response(200, [], json_encode(['value' => 2])), // should not be reached

@@ -10,7 +10,7 @@ class Transactions
     public function __construct(protected XpressWalletClient $root, protected Guzzle $http) {}
 
     /**
-     * @param array<string,mixed> $filters
+     * @param  array<string,mixed>  $filters
      * @return array<string,mixed>
      */
     public function merchant(array $filters = []): array

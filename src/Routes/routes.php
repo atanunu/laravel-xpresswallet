@@ -2,9 +2,9 @@
 
 namespace Atanunu\XpressWallet\Routes;
 
-use Illuminate\Support\Facades\Route;
 use Atanunu\XpressWallet\Http\Controllers\Examples\CustomerController;
 use Atanunu\XpressWallet\Http\Controllers\Examples\WalletController;
+use Illuminate\Support\Facades\Route;
 
 function routes(): void
 {

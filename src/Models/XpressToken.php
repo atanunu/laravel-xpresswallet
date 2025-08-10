@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class XpressToken extends Model
 {
     protected $table = 'xpress_tokens';
+
     protected $guarded = [];
 
     // Encrypt tokens at rest using Laravel's encrypted casting

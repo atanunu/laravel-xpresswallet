@@ -2,14 +2,15 @@
 
 namespace Atanunu\XpressWallet\Http\Controllers\Examples;
 
-use Illuminate\Routing\Controller;
 use Atanunu\XpressWallet\Facades\XpressWallet;
+use Illuminate\Routing\Controller;
 
 class CustomerController extends Controller
 {
     public function index(): \Illuminate\Http\JsonResponse
     {
         $page = (int) request('page', 1);
+
         return response()->json(XpressWallet::customers()->all($page));
     }
 

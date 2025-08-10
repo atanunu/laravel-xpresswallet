@@ -2,8 +2,8 @@
 
 namespace Atanunu\XpressWallet\Tests;
 
-use Orchestra\Testbench\TestCase as Base;
 use Atanunu\XpressWallet\XpressWalletServiceProvider;
+use Orchestra\Testbench\TestCase as Base;
 
 class TestCase extends Base
 {

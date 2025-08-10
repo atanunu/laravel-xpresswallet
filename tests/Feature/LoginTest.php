@@ -1,11 +1,11 @@
 <?php
 
+use Atanunu\XpressWallet\Http\Client\XpressWalletClient;
+use Atanunu\XpressWallet\Services\TokenStore;
+use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Client;
-use Atanunu\XpressWallet\Http\Client\XpressWalletClient;
-use Atanunu\XpressWallet\Services\TokenStore;
 
 it('logs in and stores tokens', function () {
     $mock = new MockHandler([

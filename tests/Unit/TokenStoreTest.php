@@ -1,8 +1,6 @@
 <?php
 
 use Atanunu\XpressWallet\Services\TokenStore;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Schema;
 
 it('stores and retrieves tokens', function () {
     $store = app(TokenStore::class);

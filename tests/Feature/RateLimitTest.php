@@ -1,18 +1,16 @@
 <?php
 
+use Atanunu\XpressWallet\Exceptions\RateLimitException;
+use Atanunu\XpressWallet\Http\Client\XpressWalletClient;
+use Atanunu\XpressWallet\Services\TokenStore;
+use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Client;
-use Atanunu\XpressWallet\Http\Client\XpressWalletClient;
-use Atanunu\XpressWallet\Services\TokenStore;
-use Atanunu\XpressWallet\Exceptions\RateLimitException;
 
 it('retries on 429 then throws RateLimitException', function () {
     config()->set('xpresswallet.retries.rate_limit_max_attempts', 3);
-    app(TokenStore::class)->put('acc','ref');
+    app(TokenStore::class)->put('acc', 'ref');
 
     $mock = new MockHandler([
         new Response(429, ['Retry-After' => '0'], ''),

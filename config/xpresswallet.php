@@ -40,10 +40,10 @@ return [
         'max_attempts' => env('XPRESSWALLET_RETRY_ATTEMPTS', 2), // total attempts including first
         'initial_delay_ms' => env('XPRESSWALLET_RETRY_DELAY', 200),
         'max_delay_ms' => env('XPRESSWALLET_RETRY_MAX_DELAY', 2000),
-    // When true, use full jitter exponential backoff instead of simple doubling (feature 10)
-    'full_jitter' => env('XPRESSWALLET_RETRY_FULL_JITTER', true),
-    // Maximum retry attempts specifically for 429 responses (rate limiting) (feature 1)
-    'rate_limit_max_attempts' => env('XPRESSWALLET_RATE_LIMIT_ATTEMPTS', 5),
+        // When true, use full jitter exponential backoff instead of simple doubling (feature 10)
+        'full_jitter' => env('XPRESSWALLET_RETRY_FULL_JITTER', true),
+        // Maximum retry attempts specifically for 429 responses (rate limiting) (feature 1)
+        'rate_limit_max_attempts' => env('XPRESSWALLET_RATE_LIMIT_ATTEMPTS', 5),
     ],
     /*
     |--------------------------------------------------------------------------

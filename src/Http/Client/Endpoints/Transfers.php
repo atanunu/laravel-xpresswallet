@@ -18,7 +18,7 @@ class Transfers
     /** @return array<string,mixed> */
     public function accountDetails(string $sortCode, string $accountNumber): array
     {
-        return $this->root->get('transfer/account/details', [ 'sortCode' => $sortCode, 'accountNumber' => $accountNumber ]);
+        return $this->root->get('transfer/account/details', ['sortCode' => $sortCode, 'accountNumber' => $accountNumber]);
     }
 
     /** @param array<string,mixed> $payload @return array<string,mixed> */
