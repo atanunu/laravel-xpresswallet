@@ -80,7 +80,7 @@ jobs:
         run: |
           php -d xdebug.mode=coverage vendor/bin/infection --threads=4 --min-msi=55 --min-covered-msi=65 || true
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
