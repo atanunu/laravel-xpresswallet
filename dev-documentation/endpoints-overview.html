@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XpressWallet / Providus API Endpoint Coverage</title>
+  <style>
+    :root { /* light theme defaults */
+      --bg:#f5f7fb; --panel:#ffffff; --panel-alt:#f1f4f9; --border:#d9e1ea; --text:#1f2a37; --muted:#65758a;
+      --ok-bg:#dcfce7; --ok-fg:#166534; --todo-bg:#fee2e2; --todo-fg:#b91c1c; --partial-bg:#dbeafe; --partial-fg:#1d4ed8; --missing-bg:#fef3c7; --missing-fg:#92400e;
+      --accent:#4f46e5; --accent-grad:linear-gradient(90deg,#6366f1,#8b5cf6);
+      --badge-radius:14px; --shadow:0 2px 4px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.05);
+      --code-bg:#eef2f7; --scrollbar:#c4ced8;
+    }
+    [data-theme="dark"] {
+      --bg:#0f1115; --panel:#1b1f25; --panel-alt:#222831; --border:#2d3642; --text:#f5f7fa; --muted:#9aa4b1;
+      --ok-bg:#153f2b; --ok-fg:#4ade80; --todo-bg:#3d1d1d; --todo-fg:#f87171; --partial-bg:#1e3a5f; --partial-fg:#60a5fa; --missing-bg:#3f2e12; --missing-fg:#fbbf24;
+      --accent:#6366f1; --accent-grad:linear-gradient(90deg,#6366f1,#8b5cf6);
+      --code-bg:#222c37; --scrollbar:#33404f; --shadow:0 2px 4px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+    }
+    * { box-sizing:border-box; }
+    body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif; margin:0; background:var(--bg); color:var(--text); line-height:1.42; }
+    header { padding:1.4rem 2rem 1.2rem; background:var(--panel); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:80; box-shadow:var(--shadow); }
+    h1 { margin:0 0 .6rem; font-size:1.55rem; background:var(--accent-grad); -webkit-background-clip:text; background-clip:text; color:transparent; letter-spacing:.5px; }
+    p.lead { margin:.3rem 0 1rem; color:var(--muted); font-size:.9rem; }
+    button, input[type=search] { font:inherit; }
+    .toolbar { display:flex; flex-wrap:wrap; gap:.9rem; align-items:center; }
+    input[type=search]{ background:var(--panel-alt); border:1px solid var(--border); color:var(--text); padding:.55rem .75rem; border-radius:7px; min-width:250px; box-shadow:inset 0 0 0 1px transparent; transition:.18s; }
+    input[type=search]:focus{ outline:none; box-shadow:inset 0 0 0 1px var(--accent); }
+    .filters { display:flex; gap:.55rem; flex-wrap:wrap; }
+    .filters label { display:flex; align-items:center; gap:.4rem; background:var(--panel-alt); padding:.4rem .7rem; border:1px solid var(--border); border-radius:20px; cursor:pointer; font-size:.7rem; font-weight:500; }
+    .filters input { accent-color:var(--accent); }
+    .summary-grid { display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); margin:1rem 0 .2rem; }
+    .summary-card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:.75rem .85rem; position:relative; overflow:hidden; box-shadow:var(--shadow); }
+    .summary-card h3 { margin:0 0 .35rem; font-size:.65rem; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+    .summary-card .value { font-size:1.15rem; font-weight:600; }
+    .progress-wrap { margin-top:.4rem; background:var(--panel-alt); border:1px solid var(--border); height:8px; border-radius:12px; overflow:hidden; }
+    .progress { height:100%; background:var(--accent-grad); width:0; transition:width .6s ease; }
+    main { padding:1.25rem 2rem 3rem; max-width:1920px; margin:0 auto; }
+    section.group-section { margin-bottom:2.75rem; }
+    section.group-section h2 { margin:0 0 .75rem; font-size:1.05rem; letter-spacing:.5px; display:flex; align-items:center; gap:.6rem; }
+    section.group-section h2 .small { font-size:.6rem; letter-spacing:1px; text-transform:uppercase; font-weight:600; padding:.2rem .5rem; border-radius:6px; background:var(--panel-alt); border:1px solid var(--border); color:var(--muted); }
+    table { border-collapse:separate; border-spacing:0; width:100%; font-size:.72rem; background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; box-shadow:var(--shadow); }
+    thead th { background:var(--panel-alt); padding:7px 10px; text-align:left; font-weight:600; letter-spacing:.5px; border-bottom:1px solid var(--border); position:sticky; top:calc(76px); z-index:60; }
+    tbody tr { transition:background .15s ease; }
+    tbody tr:hover { background:var(--panel-alt); }
+    th, td { vertical-align:top; }
+    td { padding:7px 10px; border-bottom:1px solid var(--border); }
+    tbody tr:last-child td { border-bottom:0; }
+    code { background:var(--code-bg); padding:3px 6px; border-radius:5px; font-size:.68rem; display:inline-block; max-width:260px; overflow:hidden; text-overflow:ellipsis; }
+    .badge { display:inline-flex; align-items:center; gap:4px; font-weight:600; padding:3px 10px 4px; font-size:.58rem; letter-spacing:.5px; border-radius:var(--badge-radius); text-transform:uppercase; border:1px solid transparent; white-space:nowrap; }
+    .ok.badge { background:var(--ok-bg); color:var(--ok-fg); border-color:color-mix(in srgb,var(--ok-fg),transparent 70%); }
+    .todo.badge { background:var(--todo-bg); color:var(--todo-fg); border-color:color-mix(in srgb,var(--todo-fg),transparent 70%); }
+    .partial.badge { background:var(--partial-bg); color:var(--partial-fg); border-color:color-mix(in srgb,var(--partial-fg),transparent 70%); }
+    .missing.badge { background:var(--missing-bg); color:var(--missing-fg); border-color:color-mix(in srgb,var(--missing-fg),transparent 70%); }
+    .notes { max-width:320px; }
+    .hidden { display:none !important; }
+    nav#group-nav { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.5rem; }
+    nav#group-nav a { background:var(--panel-alt); padding:.45rem .65rem; border:1px solid var(--border); border-radius:7px; font-size:.58rem; text-decoration:none; color:var(--muted); font-weight:600; letter-spacing:.5px; transition:.16s; }
+    nav#group-nav a:hover { color:var(--text); border-color:var(--accent); }
+    .theme-toggle { background:var(--panel-alt); border:1px solid var(--border); padding:.5rem .85rem; border-radius:8px; color:var(--text); cursor:pointer; font-size:.65rem; font-weight:600; letter-spacing:.5px; display:flex; align-items:center; gap:.45rem; }
+    .theme-toggle:hover { border-color:var(--accent); }
+    .status-pills { display:flex; gap:.4rem; flex-wrap:wrap; margin:.4rem 0 .9rem; }
+    .status-pills .pill { background:var(--panel-alt); border:1px solid var(--border); padding:.35rem .55rem; border-radius:18px; font-size:.6rem; display:flex; align-items:center; gap:.35rem; font-weight:500; }
+    .status-pills .pill span { font-weight:600; }
+    footer { padding:2rem; font-size:.65rem; color:var(--muted); text-align:center; }
+    .fade { color:var(--muted); font-weight:400; }
+    @media (max-width:1200px){ table { font-size:.64rem; } .notes { max-width:260px; } }
+    @media (max-width:900px){ thead th:nth-child(5), thead th:nth-child(6), td:nth-child(5), td:nth-child(6){ display:none; } .notes{ max-width:180px; } }
+    ::-webkit-scrollbar { width:10px; height:10px; }
+    ::-webkit-scrollbar-track { background:var(--panel-alt); }
+    ::-webkit-scrollbar-thumb { background:var(--scrollbar); border-radius:6px; }
+  </style>
+</head>
+<body data-theme="dark">
+<header>
+  <h1>Providus (Xpress Wallet) API Endpoint Coverage</h1>
+  <p class="lead">Dynamic snapshot of Postman collection vs SDK. Toggle theme, filter, and review per-group coverage & progress.</p>
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Search path, summary, notes... (/ to focus)" aria-label="Search endpoints" />
+    <div class="filters" id="status-filters">
+      <label><input type="checkbox" value="ok" checked /> <span class="badge ok">Implemented</span></label>
+      <label><input type="checkbox" value="partial" checked /> <span class="badge partial">Partial</span></label>
+      <label><input type="checkbox" value="missing" checked /> <span class="badge missing">Planned</span></label>
+      <label><input type="checkbox" value="todo" checked /> <span class="badge todo">Not Implemented</span></label>
+    </div>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">🌙 Dark</button>
+  </div>
+  <div class="summary-grid" id="global-summary"></div>
+  <div class="progress-wrap"><div class="progress" id="global-progress"></div></div>
+  <nav id="group-nav" aria-label="Groups"></nav>
+</header>
+<main id="content"></main>
+<section style="margin:1rem 2rem 0; font-size:.7rem; color:var(--muted); max-width:1200px;">
+  <strong>Notes:</strong>
+  <ul style="margin:.4rem 0 .2rem 1rem; padding:0; list-style:disc;">
+    <li>Responses are illustrative; verify against live API.</li>
+    <li>Implemented endpoints inherit retry (full jitter), circuit breaker, correlation + idempotency support, optional OTEL spans, and GET caching (configurable).</li>
+    <li>Use Idempotency-Key for any mutating financial operation (credit/debit/batch/transfer).</li>
+    <li>Planned next: Merchant Onboarding completion, Transfers, Cards, Team management modules.</li>
+  </ul>
+</section>
+<footer>&copy; <span id="year"></span> XpressWallet SDK Coverage Report</footer>
+  <!-- Static rows removed: now generated dynamically by JavaScript below -->
+
+<script>
+  (function(){
+    const endpoints = [
+      // Auth
+      {group:'Auth', method:'POST', path:'/auth/login', summary:'Login with merchant credentials', payload:'{ email, password }', response:'{ accessToken, refreshToken }', status:'ok', sdk:'XpressWalletClient::login()', notes:'Stores & encrypts tokens.'},
+      {group:'Auth', method:'POST', path:'/auth/logout', summary:'Invalidate current session', payload:'—', response:'{ status, message }', status:'ok', sdk:'XpressWalletClient::logout()', notes:'Clears token store.'},
+      {group:'Auth', method:'POST', path:'/auth/password/forget', summary:'Initiate password reset', payload:'{ email }', response:'{ status, message }', status:'ok', sdk:'XpressWalletClient::requestPasswordReset()', notes:'Sends reset code.'},
+      {group:'Auth', method:'POST', path:'/auth/password/reset', summary:'Complete password reset', payload:'{ resetCode, password }', response:'{ status, message }', status:'ok', sdk:'XpressWalletClient::resetPassword()', notes:'Requires reset code.'},
+      {group:'Auth', method:'POST', path:'/auth/refresh/token', summary:'Refresh access credentials', payload:'{ refreshToken }', response:'{ accessToken }', status:'ok', sdk:'XpressWalletClient::refreshTokens()', notes:'Circuit breaker + retry aware.'},
+      // User
+      {group:'User', method:'GET', path:'/user/profile', summary:'Current user profile', payload:'Headers tokens', response:'{ status, data }', status:'ok', sdk:'XpressWalletClient::user()', notes:'GET cacheable.'},
+  {group:'User', method:'PUT', path:'/user/password', summary:'Change own password', payload:'{ currentPassword, newPassword }', response:'{ status, message }', status:'ok', sdk:'User::changePassword()', notes:''},
+      // Customers
+      {group:'Customers', method:'GET', path:'/customer', summary:'List customers (paginated)', payload:'?page=', response:'{ data:[], meta }', status:'ok', sdk:'Customers::all()', notes:'Use pagination helper.'},
+      {group:'Customers', method:'GET', path:'/customer/:customerId', summary:'Fetch customer by ID', payload:'Path ID', response:'{ data }', status:'ok', sdk:'Customers::findById()', notes:''},
+      {group:'Customers', method:'GET', path:'/customer/phone', summary:'Lookup by phone', payload:'?phoneNumber=', response:'{ data }', status:'ok', sdk:'Customers::findByPhone()', notes:''},
+      {group:'Customers', method:'PUT', path:'/customer/:customerId', summary:'Update customer', payload:'{ fields }', response:'{ status, data }', status:'ok', sdk:'Customers::update()', notes:'Server validation.'},
+  {group:'Customers', method:'POST', path:'/customer', summary:'Create customer', payload:'{ fields }', response:'{ status, data }', status:'ok', sdk:'Customers::create()', notes:'' },
+      // Wallets
+      {group:'Wallets', method:'POST', path:'/wallet', summary:'Create wallet', payload:'{ customerId, currency, ... }', response:'{ status, data }', status:'ok', sdk:'Wallets::create()', notes:''},
+      {group:'Wallets', method:'GET', path:'/wallet', summary:'List wallets', payload:'—', response:'{ data:[] }', status:'ok', sdk:'Wallets::all()', notes:'Cacheable.'},
+      {group:'Wallets', method:'GET', path:'/wallet/customer', summary:'Wallet by customer', payload:'?customerId=', response:'{ data }', status:'ok', sdk:'Wallets::customerWallet()', notes:''},
+      {group:'Wallets', method:'POST', path:'/wallet/credit', summary:'Credit wallet', payload:'{ customerId, amount }', response:'{ status, data }', status:'ok', sdk:'Wallets::credit()', notes:'Use Idempotency-Key.'},
+      {group:'Wallets', method:'POST', path:'/wallet/debit', summary:'Debit wallet', payload:'{ customerId, amount }', response:'{ status, data }', status:'ok', sdk:'Wallets::debit()', notes:'Retry safe.'},
+      {group:'Wallets', method:'POST', path:'/wallet/close', summary:'Freeze wallet', payload:'{ customerId }', response:'{ status, message }', status:'ok', sdk:'Wallets::freeze()', notes:''},
+      {group:'Wallets', method:'POST', path:'/wallet/enable', summary:'Unfreeze wallet', payload:'{ customerId }', response:'{ status, message }', status:'ok', sdk:'Wallets::unfreeze()', notes:''},
+      {group:'Wallets', method:'POST', path:'/wallet/batch-credit-customer-wallet', summary:'Batch credit', payload:'{ transactions:[...] }', response:'{ status, data }', status:'ok', sdk:'Wallets::batchCredit()', notes:'Idempotent recommended.'},
+      {group:'Wallets', method:'POST', path:'/wallet/batch-debit-customer-wallet', summary:'Batch debit', payload:'{ transactions:[...] }', response:'{ status, data }', status:'ok', sdk:'Wallets::batchDebit()', notes:''},
+      {group:'Wallets', method:'POST', path:'/wallet/customer-batch-credit-customer-wallet', summary:'Customer batch credit', payload:'{ transactions:[...] }', response:'{ status, data }', status:'ok', sdk:'Wallets::customerBatchCredit()', notes:''},
+      {group:'Wallets', method:'POST', path:'/merchant/fund-wallet', summary:'Fund sandbox merchant', payload:'{ amount }', response:'{ status, data }', status:'ok', sdk:'Wallets::fundMerchantSandboxWallet()', notes:'Sandbox only.'},
+      // Transactions
+      {group:'Transactions', method:'GET', path:'/merchant/transactions', summary:'List merchant transactions', payload:'Filters (?page,type,...)', response:'{ data:[], meta }', status:'ok', sdk:'Transactions::merchant()', notes:'Pass filters array.'},
+      {group:'Transactions', method:'GET', path:'/merchant/transaction/:reference', summary:'Transaction details', payload:'Path reference', response:'{ data }', status:'ok', sdk:'Transactions::details()', notes:''},
+      // Merchant Onboarding & Profile
+  {group:'Merchant Onboarding & Profile', method:'POST', path:'/merchant/request-merchant-password-change', summary:'Initiate merchant password change', payload:'{ email }', response:'{ status, message }', status:'ok', sdk:'Merchant::requestPasswordChange()', notes:''},
+  {group:'Merchant Onboarding & Profile', method:'POST', path:'/merchant/change-merchant-password', summary:'Complete merchant password change', payload:'{ resetCode, password }', response:'{ status, message }', status:'ok', sdk:'Merchant::changePassword()', notes:''},
+  {group:'Merchant Onboarding & Profile', method:'POST', path:'/merchant/verify', summary:'Verify merchant account', payload:'{ code }', response:'{ status, message }', status:'ok', sdk:'Merchant::verify()', notes:''},
+  {group:'Merchant Onboarding & Profile', method:'POST', path:'/merchant/verify/resend', summary:'Resend verification code', payload:'{ email? }', response:'{ status, message }', status:'ok', sdk:'Merchant::resendVerification()', notes:''},
+  {group:'Merchant Onboarding & Profile', method:'POST', path:'/merchant/resend-activation-code', summary:'Resend activation', payload:'{ email? }', response:'{ status, message }', status:'ok', sdk:'Merchant::resendActivation()', notes:''},
+  {group:'Merchant Onboarding & Profile', method:'POST', path:'/merchant/complete-merchant-registration', summary:'Complete registration', payload:'{ documents }', response:'{ status, message }', status:'ok', sdk:'Merchant::completeRegistration()', notes:''},
+  {group:'Merchant Onboarding & Profile', method:'GET', path:'/merchant/profile', summary:'Merchant profile', payload:'Headers tokens', response:'{ status, data }', status:'ok', sdk:'Merchant::profile()', notes:''},
+  {group:'Merchant Onboarding & Profile', method:'GET', path:'/merchant/my-access-keys', summary:'Retrieve access keys', payload:'—', response:'{ data:{ publicKey, privateKey } }', status:'ok', sdk:'Merchant::accessKeys()', notes:''},
+  {group:'Merchant Onboarding & Profile', method:'POST', path:'/merchant/generate-access-keys', summary:'Generate new keys', payload:'—', response:'{ data:{ publicKey, privateKey } }', status:'ok', sdk:'Merchant::generateAccessKeys()', notes:''},
+  {group:'Merchant Onboarding & Profile', method:'GET', path:'/merchant/account-mode', summary:'Get account mode', payload:'—', response:'{ data:{ mode } }', status:'ok', sdk:'Merchant::accountMode()', notes:''},
+  {group:'Merchant Onboarding & Profile', method:'PATCH', path:'/merchant/account-mode', summary:'Switch account mode', payload:'{ mode }', response:'{ status, message }', status:'ok', sdk:'Merchant::switchAccountMode()', notes:''},
+  {group:'Merchant Onboarding & Profile', method:'GET', path:'/merchant', summary:'Merchant summary', payload:'—', response:'{ data }', status:'ok', sdk:'Merchant::summary()', notes:''},
+  {group:'Merchant Onboarding & Profile', method:'GET', path:'/merchant/wallet', summary:'Merchant wallet balance', payload:'—', response:'{ data:{ balance } }', status:'ok', sdk:'Merchant::wallet()', notes:''},
+      // Future scope groups combined
+  {group:'Transfers / Cards / Team (Future Scope)', method:'GET', path:'/transfer/banks', summary:'List banks', payload:'—', response:'{ data:[...] }', status:'ok', sdk:'Transfers::banks()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'GET', path:'/transfer/account/details', summary:'Resolve bank account', payload:'?sortCode=&accountNumber=', response:'{ data:{ name } }', status:'ok', sdk:'Transfers::accountDetails()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'POST', path:'/transfer/bank', summary:'Single bank transfer', payload:'{ beneficiary, amount, ... }', response:'{ status, data }', status:'ok', sdk:'Transfers::bank()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'POST', path:'/transfer/bank/customer', summary:'Customer bank transfer', payload:'{ customerId, amount, ... }', response:'{ status, data }', status:'ok', sdk:'Transfers::bankCustomer()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'POST', path:'/transfer/bank/batch', summary:'Batch bank transfers', payload:'{ transfers:[...] }', response:'{ status, data }', status:'ok', sdk:'Transfers::bankBatch()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'POST', path:'/transfer/wallet', summary:'Wallet to wallet transfer', payload:'{ from, to, amount }', response:'{ status, data }', status:'ok', sdk:'Transfers::wallet()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'POST', path:'/card/setup', summary:'Initiate card issuance', payload:'{ customerId, ... }', response:'{ status, data }', status:'ok', sdk:'Cards::setup()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'GET', path:'/card', summary:'List cards', payload:'?filters', response:'{ data:[...] }', status:'ok', sdk:'Cards::all()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'POST', path:'/card/activate', summary:'Activate card', payload:'{ last6, code }', response:'{ status, message }', status:'ok', sdk:'Cards::activate()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'GET', path:'/card/balance', summary:'Card balance lookup', payload:'?customerId= or ?last6=', response:'{ data:{ balance } }', status:'ok', sdk:'Cards::balance()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'POST', path:'/card/fund', summary:'Fund card', payload:'{ last6|cardId, amount }', response:'{ status, data }', status:'ok', sdk:'Cards::fund()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'GET', path:'/team/invitations', summary:'List invitations', payload:'?page=&perPage=', response:'{ data:[...] }', status:'ok', sdk:'Team::invitations()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'POST', path:'/team/invitations', summary:'Create invitation', payload:'{ email, roleId }', response:'{ status, data }', status:'ok', sdk:'Team::invite()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'POST', path:'/team/invitations/resend', summary:'Resend invite', payload:'{ invitationId }', response:'{ status, message }', status:'ok', sdk:'Team::resendInvitation()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'POST', path:'/team/invitations/accept', summary:'Accept invitation', payload:'{ token }', response:'{ status, message }', status:'ok', sdk:'Team::acceptInvitation()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'GET', path:'/team/members', summary:'List members', payload:'—', response:'{ data:[...] }', status:'ok', sdk:'Team::members()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'GET', path:'/team/merchants', summary:'Merchants user belongs to', payload:'—', response:'{ data:[...] }', status:'ok', sdk:'Team::merchants()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'POST', path:'/team/merchants/switch', summary:'Switch active merchant', payload:'{ merchantId }', response:'{ status, message }', status:'ok', sdk:'Team::switchMerchant()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'GET', path:'/team/permissions', summary:'List permissions', payload:'—', response:'{ data:[...] }', status:'ok', sdk:'Team::permissions()', notes:''},
+  {group:'Transfers / Cards / Team (Future Scope)', method:'GET', path:'/team/roles', summary:'List roles', payload:'—', response:'{ data:[...] }', status:'ok', sdk:'Team::roles()', notes:''},
+    ];
+
+    const q = (s,ctx=document)=>ctx.querySelector(s);
+    const qa = (s,ctx=document)=>Array.from(ctx.querySelectorAll(s));
+    const content = q('#content');
+    const searchInput = q('#search');
+    const statusFilterContainer = q('#status-filters');
+    const globalSummary = q('#global-summary');
+    const groupNav = q('#group-nav');
+    const progressBar = q('#global-progress');
+    const themeToggle = q('#themeToggle');
+    const yearEl = q('#year'); yearEl.textContent = new Date().getFullYear();
+
+    const groupOrder = [
+      'Auth','User','Customers','Wallets','Transactions','Merchant Onboarding & Profile','Transfers / Cards / Team (Future Scope)'
+    ];
+
+    function build(){
+      content.innerHTML=''; groupNav.innerHTML='';
+      groupOrder.forEach(group => {
+        const rows = endpoints.filter(e=>e.group===group);
+        if(!rows.length) return;
+        // group stats
+        const stats = rows.reduce((acc,r)=>{ acc[r.status]=(acc[r.status]||0)+1; return acc; },{});
+        const total = rows.length; const implemented = stats.ok||0;
+        const section = document.createElement('section'); section.className='group-section'; section.id = 'group-'+group.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+        const h2 = document.createElement('h2');
+        h2.innerHTML = `${group} <span class="small">${implemented}/${total} (${Math.round((implemented/total)*100)}%)</span>`;
+        section.appendChild(h2);
+        // table
+        const table = document.createElement('table');
+        table.innerHTML = `<thead><tr><th>HTTP</th><th>Path</th><th>Summary</th><th>Payload / Params</th><th>Response</th><th>Status</th><th>SDK</th><th>Notes</th></tr></thead>`;
+        const tb = document.createElement('tbody');
+        rows.forEach(r => {
+          const tr = document.createElement('tr');
+          tr.dataset.status = r.status;
+            tr.innerHTML = `
+              <td class="nowrap">${r.method}</td>
+              <td><code>${r.path}</code></td>
+              <td>${r.summary}</td>
+              <td>${r.payload?`<code>${r.payload}</code>`:'—'}</td>
+              <td>${r.response?`<code>${r.response}</code>`:'—'}</td>
+              <td><span class="badge ${r.status}">${labelFor(r.status)}</span></td>
+              <td>${r.sdk||'—'}</td>
+              <td class="notes">${r.notes||''}</td>`;
+          tb.appendChild(tr);
+        });
+        table.appendChild(tb); section.appendChild(table); content.appendChild(section);
+        // group nav link
+        const a = document.createElement('a'); a.href = '#'+section.id; a.textContent = group; groupNav.appendChild(a);
+      });
+      computeGlobal(); applyFilters();
+    }
+
+    function labelFor(status){
+      switch(status){
+        case 'ok': return 'Implemented';
+        case 'todo': return 'Not Impl';
+        case 'partial': return 'Partial';
+        case 'missing': return 'Planned';
+        default: return status;
+      }
+    }
+
+    function computeGlobal(){
+      const counts = { ok:0, partial:0, missing:0, todo:0 };
+      endpoints.forEach(e=>{ if(counts[e.status]!==undefined) counts[e.status]++; });
+      const total = endpoints.length;
+      const implemented = counts.ok;
+      const percent = total?Math.round((implemented/total)*100):0;
+      globalSummary.innerHTML = '';
+      Object.entries(counts).forEach(([k,v])=>{
+        const card = document.createElement('div'); card.className='summary-card';
+        card.innerHTML = `<h3>${labelFor(k)}</h3><div class="value">${v}</div><div class="fade">${total?Math.round((v/total)*100):0}%</div>`;
+        globalSummary.appendChild(card);
+      });
+      const compCard = document.createElement('div'); compCard.className='summary-card';
+      compCard.innerHTML = `<h3>Coverage</h3><div class="value">${percent}%</div><div class="fade">${implemented}/${total}</div>`;
+      globalSummary.appendChild(compCard);
+      requestAnimationFrame(()=>{ progressBar.style.width = percent+'%'; });
+    }
+
+    function applyFilters(){
+      const term = searchInput.value.trim().toLowerCase();
+      const activeStatuses = qa('input[type=checkbox]:checked', statusFilterContainer).map(cb=>cb.value);
+      qa('tbody tr').forEach(r => {
+        const statusOk = activeStatuses.includes(r.dataset.status);
+        const text = r.textContent.toLowerCase();
+        const match = !term || text.includes(term);
+        r.classList.toggle('hidden', !(statusOk && match));
+      });
+      // hide entire table if all hidden
+      qa('section.group-section').forEach(sec => {
+        const visible = qa('tbody tr', sec).some(r=>!r.classList.contains('hidden'));
+        sec.classList.toggle('hidden', !visible);
+      });
+    }
+
+    searchInput.addEventListener('input', applyFilters);
+    statusFilterContainer.addEventListener('change', applyFilters);
+    window.addEventListener('keydown', e=>{ if(e.key==='/' && document.activeElement!==searchInput){ e.preventDefault(); searchInput.focus(); } });
+
+    // Theme toggle
+    function setTheme(theme){ document.body.setAttribute('data-theme', theme); localStorage.setItem('xw-theme', theme); themeToggle.textContent = theme==='dark'?'🌙 Dark':'☀️ Light'; }
+    const stored = localStorage.getItem('xw-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setTheme(stored || (prefersDark ? 'dark':'light'));
+    themeToggle.addEventListener('click', ()=>{ setTheme(document.body.getAttribute('data-theme')==='dark'?'light':'dark'); });
+
+    build();
+  })();
+</script>
+</body>
+</html>

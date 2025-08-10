@@ -1,0 +1,63 @@
+{
+  "name": "atanunu/laravel-xpresswallet",
+  "version": "0.2.0",
+  "description": "Laravel integration for Providus Xpress Wallet API with token storage, caching, logging and audit.",
+  "keywords": ["laravel","xpresswallet","providus","api","sdk","wallet","payments"],
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "atanunu",
+      "email": "dev@atanunu.example"
+    }
+  ],
+  "require": {
+    "php": "^8.2",
+    "illuminate/support": "^11.0|^12.0",
+    "guzzlehttp/guzzle": "^7.8|^8.0"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^9.0|^10.0",
+    "pestphp/pest": "^3.0",
+    "pestphp/pest-plugin-laravel": "^3.0",
+  "laravel/pint": "^1.14",
+  "larastan/larastan": "^2.9",
+  "phpstan/phpstan": "^1.11",
+  "roave/security-advisories": "dev-latest",
+  "infection/infection": "^0.29"
+  },
+  "autoload": {
+    "psr-4": {
+      "Atanunu\\XpressWallet\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Atanunu\\XpressWallet\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Atanunu\\XpressWallet\\XpressWalletServiceProvider"
+      ],
+      "aliases": {
+        "XpressWallet": "Atanunu\\XpressWallet\\Facades\\XpressWallet"
+      }
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "scripts": {
+    "test": "pest",
+    "lint": "pint",
+    "analyse": "php -d memory_limit=512M vendor/bin/phpstan analyse",
+  "coverage": "php -d xdebug.mode=coverage vendor/bin/pest --coverage",
+  "mutation": "php -d xdebug.mode=coverage vendor/bin/infection --threads=4 --min-msi=50 --min-covered-msi=60 || true"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}

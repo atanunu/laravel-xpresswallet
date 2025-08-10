@@ -1,0 +1,11 @@
+# Root ignore
+/vendor/
+/composer.lock
+.phpunit.result.cache
+/.php-cs-fixer.cache
+/.idea/
+/.vscode/
+/.DS_Store
+/node_modules/
+coverage/
+.phpunit.cache/
