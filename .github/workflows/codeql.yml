@@ -1,4 +1,4 @@
-name: CodeQL
+name: CodeQL (disabled)
 
 on:
   push:
@@ -10,24 +10,14 @@ on:
 
 jobs:
   analyse:
-    name: Analyse
+    # Disabled because public CodeQL does not (yet) include GA support for PHP in this repository.
+    # We already run static analysis via PHPStan/Larastan in ci.yml. Re‑enable once PHP becomes
+    # generally available (or this repo is enrolled in the beta) by removing the `if: false` and
+    # restoring the language matrix.
+    if: false
+    name: Analyse (temporarily disabled)
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'php' ]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
-      - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+      - name: Skip
+        run: |
+          echo "CodeQL disabled: relying on PHPStan & Mutation testing instead."
