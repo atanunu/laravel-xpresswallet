@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Optional Enhancements Roadmap – Laravel SDK for Providus Bank XpressWallet</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+ body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; margin: 2rem; line-height: 1.45; background:#0d1117; color:#e6edf3; }
+ h1,h2 { line-height:1.2; }
+ a { color:#58a6ff; }
+ table { width:100%; border-collapse: collapse; margin:1.5rem 0; font-size:0.92rem; }
+ th, td { padding: .55rem .6rem; border:1px solid #30363d; vertical-align: top; }
+ th { background:#161b22; text-align:left; position:sticky; top:0; }
+ tr:nth-child(even) td { background:#161b22; }
+ .status { font-weight:600; white-space:nowrap; }
+ .status-planned { color:#58a6ff; }
+ .status-pending { color:#c9d1d9; }
+ .status-idea { color:#8b949e; font-style:italic; }
+ .status-inprogress { color:#d29922; }
+ .status-done { color:#3fb950; }
+ code { background:#161b22; padding:2px 4px; border-radius:4px; font-size:0.85em; }
+ details { margin: .6rem 0 1rem; }
+ summary { cursor:pointer; font-weight:600; }
+ .tag { display:inline-block; background:#21262d; padding:2px 6px; margin:2px 4px 2px 0; border-radius:12px; font-size:11px; color:#adb7c3; }
+ .foot { margin-top:3rem; font-size:12px; opacity:.75; }
+ @media (prefers-color-scheme: light) { body{background:#fff;color:#24292f;} th,td{border-color:#d0d7de;} th{background:#f6f8fa;} tr:nth-child(even) td{background:#f6f8fa;} code{background:#f6f8fa;} .tag{background:#eaeef2;color:#57606a;} }
+</style>
+</head>
+<body>
+<h1>Optional Enhancements Roadmap</h1>
+<p>This document captures <strong>optional / future tweaks</strong> for the <em>Laravel SDK for Providus Bank XpressWallet</em>, with rationale, value, and a high‑level implementation outline. Status values are indicative only; nothing here is committed scope.</p>
+
+<h2>Status Legend</h2>
+<ul>
+  <li><span class="status status-planned">Planned</span>: Accepted for a future iteration.</li>
+  <li><span class="status status-pending">Pending</span>: Not yet prioritized / awaits decision.</li>
+  <li><span class="status status-inprogress">In Progress</span>: Work has begun (not currently used).</li>
+  <li><span class="status status-done">Done</span>: Implemented on <code>main</code>.</li>
+  <li><span class="status status-idea">Idea</span>: Exploratory / needs validation.</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:170px;">Enhancement</th>
+      <th style="width:110px;">Status</th>
+      <th>Problem / Value</th>
+      <th>Implementation Outline</th>
+      <th>Risks / Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Dashboard Regeneration Script</td>
+      <td class="status status-planned">Planned</td>
+      <td>Prevents drift between source endpoint definitions and published <code>docs/index.html</code>.</td>
+      <td>
+        <ul>
+          <li>Move endpoints array to <code>resources/endpoints.json</code>.</li>
+          <li>Add build script (PHP or Node) to inject data into template.</li>
+          <li><code>composer dashboard:build</code> script + CI check for dirty diff.</li>
+        </ul>
+      </td>
+      <td>Keep generation deterministic; avoid network calls.</td>
+    </tr>
+    <tr>
+      <td>Mutation Score Badge Automation</td>
+      <td class="status status-planned">Planned</td>
+      <td>Replaces static placeholder badge with current Infection MSI to signal real test strength.</td>
+      <td>
+        <ul>
+          <li>After Infection, parse <code>infection-log.json</code>.</li>
+          <li>Emit <code>docs/mutation-shield.json</code> (Shields custom schema).</li>
+          <li>Point README badge to GitHub Pages URL.</li>
+        </ul>
+      </td>
+      <td>Ensure CI does not commit on PR forks (condition on <code>main</code>).</td>
+    </tr>
+    <tr>
+      <td>Mutation Threshold Ratcheting</td>
+      <td class="status status-pending">Pending</td>
+      <td>Gradually improves test rigor while avoiding abrupt pipeline breaks.</td>
+      <td>Monitor 5–10 runs, then raise <code>--min-msi</code>/<code>--min-covered-msi</code> in small increments (5%).</td>
+      <td>Document baseline in CHANGELOG when thresholds change.</td>
+    </tr>
+    <tr>
+      <td>Psalm Baseline & Tightening</td>
+      <td class="status status-planned">Planned</td>
+      <td>Introduce stricter static analysis without blocking adoption initially.</td>
+      <td>Create baseline (<code>--set-baseline</code>), commit, remove <code>|| true</code> once clean, lower errorLevel stepwise.</td>
+      <td>Balance with PHPStan to avoid duplicate effort.</td>
+    </tr>
+    <tr>
+      <td>Extended OpenTelemetry Attributes</td>
+      <td class="status status-idea">Idea</td>
+      <td>Add richer observability (retry count, cache hit, circuit state) for trace analytics.</td>
+      <td>Decorate span creation: set attributes from middleware context; ensure no PII leakage.</td>
+      <td>Trace cardinality risk if adding dynamic values (limit labels).</td>
+    </tr>
+    <tr>
+      <td>Redis Circuit Breaker Backend</td>
+      <td class="status status-idea">Idea</td>
+      <td>Share breaker state across multiple app instances for consistent throttling.</td>
+      <td>Abstract breaker storage (interface); implement Redis driver using atomic <code>INCR</code> & TTL; config switch.</td>
+      <td>Need fallback to in-memory if Redis unavailable.</td>
+    </tr>
+    <tr>
+      <td>Pagination Auto-Iterator</td>
+      <td class="status status-pending">Pending</td>
+      <td>Simplifies client code iterating across pages.</td>
+      <td>Add generator method <code>streamPages($endpoint,...)</code>; yields items or page arrays until exhausted.</td>
+      <td>Consider rate limiting impact; allow delay hook.</td>
+    </tr>
+    <tr>
+      <td>Configurable Idempotency Key Provider</td>
+      <td class="status status-pending">Pending</td>
+      <td>Lets consumers plug custom key strategy (e.g. hash of body) for retries.</td>
+      <td>Define interface <code>IdempotencyKeyFactory</code>; allow binding override in service provider.</td>
+      <td>Must ensure uniqueness vs replay attacks.</td>
+    </tr>
+    <tr>
+      <td>Dashboard Data Extraction Refactor</td>
+      <td class="status status-planned">Planned</td>
+      <td>Separates data from presentation for reuse (docs, CLI, potential JSON export).</td>
+      <td>Store JSON + validation schema; JS fetch renders; build script verifies.</td>
+      <td>Ensure GitHub Pages still serves static assets only.</td>
+    </tr>
+    <tr>
+      <td>CLI / Artisan Status Commands</td>
+      <td class="status status-idea">Idea</td>
+      <td>Quick inspection of tokens, breaker state, recent logs to aid debugging.</td>
+      <td>Commands: <code>xpress:status</code>, <code>xpress:tokens:list</code>, <code>xpress:logs:recent</code>.</td>
+      <td>Keep output concise; consider JSON flag.</td>
+    </tr>
+    <tr>
+      <td>Security Hardening Notes Expansion</td>
+      <td class="status status-pending">Pending</td>
+      <td>Guides users on rotation, least privilege, secret masking beyond basics.</td>
+      <td>Add README + /dev-documentation section: rotate secrets (90d), restrict DB grants, monitor webhook failures.</td>
+      <td>Sync with CHANGELOG when adding major guidance.</td>
+    </tr>
+    <tr>
+      <td>HTTP Replay / Fixture Tool</td>
+      <td class="status status-idea">Idea</td>
+      <td>Enables offline test runs using recorded JSON fixtures.</td>
+      <td>Middleware to record responses to <code>storage/xpresswallet-fixtures</code>; toggle replay mode via config.</td>
+      <td>Scrub sensitive headers before writing fixtures.</td>
+    </tr>
+    <tr>
+      <td>Automatic Typed DTO Generation</td>
+      <td class="status status-idea">Idea</td>
+      <td>Improves IDE autocompletion & refactor safety once API schema formalized.</td>
+      <td>Generate PHP classes from OpenAPI (if/when spec available) or introspection patterns; map arrays to value objects.</td>
+      <td>Requires stable upstream schema; otherwise churn risk.</td>
+    </tr>
+  </tbody>
+</table>
+
+<details>
+  <summary>Contributing Guidance</summary>
+  <p>When implementing an enhancement:</p>
+  <ol>
+    <li>Create an issue referencing the row title.</li>
+    <li>Discuss scope & acceptance criteria briefly.</li>
+    <li>Open a PR early (draft) – link the issue.</li>
+    <li>Update this file's status cell and README if user-facing.</li>
+    <li>Add tests & documentation; update CHANGELOG.</li>
+  </ol>
+</details>
+
+<p class="foot">Generated manually – update statuses as work progresses. Last updated: <time datetime="2025-08-11">2025-08-11</time>.</p>
+</body>
+</html>
