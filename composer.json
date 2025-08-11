@@ -24,6 +24,7 @@
     "phpstan/phpstan": "^1.11",
     "roave/security-advisories": "dev-latest",
     "infection/infection": "^0.29 || ^0.31"
+  ,"vimeo/psalm": "^5.26 || ^6.0 || dev-master"
   },
   "autoload": {
     "psr-4": {
@@ -53,6 +54,7 @@
     "analyse": "php -d memory_limit=512M vendor/bin/phpstan analyse",
     "coverage": "php -d xdebug.mode=coverage vendor/bin/pest --coverage",
     "mutation": "php -d xdebug.mode=coverage vendor/bin/infection --threads=4 --min-msi=50 --min-covered-msi=60 || true"
+  ,"psalm": "vendor/bin/psalm --output-format=compact"
   },
   "config": {
     "allow-plugins": {

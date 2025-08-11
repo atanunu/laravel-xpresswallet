@@ -8,8 +8,18 @@ use Atanunu\XpressWallet\Services\TokenStore;
 use GuzzleHttp\Client as Guzzle;
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * Package service provider registering config, HTTP client binding, token store and console commands.
+ *
+ * Highlights:
+ * - Merges package configuration allowing user overrides.
+ * - Binds TokenStore (DB + cache) and XpressWalletClient (Guzzle wrapper with resilience features).
+ * - Aliases contract to concrete for convenience.
+ * - Conditionally loads helper API routes when enabled & routes not cached to avoid redeclaration.
+ */
 class XpressWalletServiceProvider extends ServiceProvider
 {
+    /** Register container bindings & merge configuration. */
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/xpresswallet.php', 'xpresswallet');
@@ -41,6 +51,7 @@ class XpressWalletServiceProvider extends ServiceProvider
         $this->app->alias(XpressWalletClientContract::class, XpressWalletClient::class);
     }
 
+    /** Bootstrap publishing assets, console commands, and optional routes. */
     public function boot(): void
     {
         // Publish config and migrations
@@ -64,6 +75,14 @@ class XpressWalletServiceProvider extends ServiceProvider
                 \Atanunu\XpressWallet\Commands\XpressPruneCommand::class,
                 \Atanunu\XpressWallet\Commands\XpressValidateConfigCommand::class,
             ]);
+        }
+
+        // Conditionally register package routes
+        $routesCfg = $this->app['config']->get('xpresswallet.routes');
+        if (($routesCfg['enabled'] ?? false) && ! $this->app->routesAreCached()) {
+            // Isolate to avoid global function name collisions
+            require __DIR__.'/Routes/routes.php';
+            \Atanunu\XpressWallet\Routes\routes();
         }
     }
 }

@@ -6,7 +6,7 @@ return [
     | Xpress Wallet Base URL
     |--------------------------------------------------------------------------
     */
-    'base_url' => env('XPRESSWALLET_BASE_URL', 'https://api.example.com'),
+    'base_url' => env('XPRESSWALLET_BASE_URL', 'https://payment.xpress-wallet.com'),
     /*
     |--------------------------------------------------------------------------
     | Credentials (raw). We will base64-encode them for the login call.
@@ -117,5 +117,18 @@ return [
     'opentelemetry' => [
         'enabled' => env('XPRESSWALLET_OTEL_ENABLED', true),
         'service_name' => env('XPRESSWALLET_OTEL_SERVICE', 'xpresswallet-sdk'),
+    ],
+    /*
+    |--------------------------------------------------------------------------
+    | Built-in API Routes
+    |--------------------------------------------------------------------------
+    | Toggle auto-registration of package API helper routes (read/write wrappers 
+    | around the SDK) and configure their prefix & middleware. Disabled by default
+    | to avoid exposing endpoints unintentionally.
+    */
+    'routes' => [
+        'enabled' => env('XPRESSWALLET_ROUTES_ENABLED', false),
+        'prefix' => env('XPRESSWALLET_ROUTES_PREFIX', 'xpresswallet'),
+        'middleware' => array_filter(explode(',', env('XPRESSWALLET_ROUTES_MIDDLEWARE', 'api'))),
     ],
 ];

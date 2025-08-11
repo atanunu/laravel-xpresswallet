@@ -5,6 +5,7 @@
 ![Security Audit](https://github.com/atanunu/laravel-xpresswallet/actions/workflows/security-audit.yml/badge.svg)
 ![License](https://img.shields.io/github/license/atanunu/laravel-xpresswallet)
 [![Endpoints Dashboard](https://img.shields.io/badge/docs-endpoints%20dashboard-blue)](https://atanunu.github.io/laravel-xpresswallet/)
+[![API Guide](https://img.shields.io/badge/docs-api%20guide-green)](https://atanunu.github.io/laravel-xpresswallet/api-guide.html)
 [![Mutation Score](https://img.shields.io/badge/mutation%20score-experimental-lightgrey)](#mutation-testing)
 [![Packagist Version](https://img.shields.io/packagist/v/atanunu/laravel-xpresswallet)](https://packagist.org/packages/atanunu/laravel-xpresswallet)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/atanunu/laravel-xpresswallet)](https://packagist.org/packages/atanunu/laravel-xpresswallet)
@@ -110,6 +111,32 @@ Route::prefix('xpress-demo')->middleware('web')->group(function() {
     \Atanunu\XpressWallet\Routes\routes();
 });
 ```
+
+## Built-in API Routes (Optional)
+
+The package can automatically expose a comprehensive set of REST-style proxy endpoints (customers, wallets, transfers, cards, merchant, team, transactions). They are DISABLED by default to avoid accidentally exposing sensitive actions.
+
+Enable in `.env` (after publishing config):
+
+```env
+XPRESSWALLET_ROUTES_ENABLED=true
+XPRESSWALLET_ROUTES_PREFIX=xpresswallet
+XPRESSWALLET_ROUTES_MIDDLEWARE=api,auth:sanctum
+```
+
+Notes:
+* Use strong auth / rate limiting. These proxy real money-moving operations.
+* Adjust prefix & middleware in `config/xpresswallet.php` under the `routes` key.
+* Routes register only when `enabled` and routes cache is not already built (standard Laravel behavior).
+* Best suited for internal tools or rapid prototyping; for production domains build thin wrappers enforcing business rules.
+
+Examples (with default prefix):
+* `GET /xpresswallet/customers` – list customers
+* `POST /xpresswallet/wallets` – create wallet
+* `POST /xpresswallet/transfers/bank` – bank transfer
+* `POST /xpresswallet/cards/setup` – initiate card setup
+
+See `src/Routes/routes.php` for the full route map and names (all names start with `xpresswallet.`).
 
 ## Testing & Coverage
 

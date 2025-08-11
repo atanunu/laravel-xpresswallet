@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>XpressWallet Laravel Package – API Route Guide</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.4;margin:2rem;max-width:1100px}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.875rem;background:#f5f5f7;padding:.15rem .35rem;border-radius:4px}
+pre{padding:1rem;overflow:auto}
+header h1{margin:.2rem 0 0;font-size:1.9rem}
+header p{color:#555;margin:.25rem 0 1.5rem}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;margin:1.2rem 0;font-size:.9rem}
+th,td{border:1px solid #ddd;padding:.55rem .6rem;text-align:left;vertical-align:top}
+th{background:#fafafa}
+.section{margin-top:3rem}
+.badge{display:inline-block;background:#0366d6;color:#fff;padding:.15rem .5rem;border-radius:3px;font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;margin-right:.35rem}
+.endpoint{font-weight:600}
+.small{font-size:.75rem;color:#666}
+.details{margin:.25rem 0 .75rem}
+summary{cursor:pointer;font-weight:600}
+.alert{background:#fff8e1;border:1px solid #ffe0a3;padding:.75rem 1rem;border-radius:4px}
+footer{margin:4rem 0 2rem;font-size:.75rem;color:#666}
+</style>
+</head>
+<body>
+<header>
+  <h1>API Route Guide</h1>
+  <p>Auto-registered (optional) proxy endpoints provided by the <strong>laravel-xpresswallet</strong> package when <code>XPRESSWALLET_ROUTES_ENABLED=true</code>.</p>
+  <div class="alert"><strong>Security:</strong> Always apply authentication/authorization middleware (e.g. <code>auth:sanctum</code>) via <code>XPRESSWALLET_ROUTES_MIDDLEWARE</code>. These endpoints move funds and manage sensitive resources.</div>
+</header>
+
+<nav class="small">
+  <a href="#customers">Customers</a> •
+  <a href="#wallets">Wallets</a> •
+  <a href="#transactions">Transactions</a> •
+  <a href="#transfers">Transfers</a> •
+  <a href="#cards">Cards</a> •
+  <a href="#merchant">Merchant</a> •
+  <a href="#team">Team</a>
+</nav>
+
+<section id="overview" class="section">
+  <h2>Overview</h2>
+  <p>All routes are grouped under the configurable prefix (default <code>/xpresswallet</code>) and named with the <code>xpresswallet.</code> namespace. Errors surface as JSON with Laravel's standard validation format (<code>422</code>), or downstream API errors (mapped exceptions) standardised by the package.</p>
+  <p>Successful responses simply proxy the upstream API JSON body (with minimal wrapping).</p>
+</section>
+
+<section id="customers" class="section">
+  <h2>Customers</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Method</th><th>Path</th><th>Name</th><th>Description</th><th>Validation</th></tr></thead>
+      <tbody>
+        <tr><td>GET</td><td><code>/customers</code></td><td>xpresswallet.customers.index</td><td>List customers (supports query params like <code>page</code>)</td><td>-</td></tr>
+        <tr><td>POST</td><td><code>/customers</code></td><td>xpresswallet.customers.store</td><td>Create customer</td><td><code>first_name,last_name,email,phone</code> required; see form request</td></tr>
+        <tr><td>GET</td><td><code>/customers/{id}</code></td><td>xpresswallet.customers.show</td><td>Retrieve customer by ID</td><td>-</td></tr>
+        <tr><td>GET</td><td><code>/customers/phone/{phone}</code></td><td>xpresswallet.customers.find-by-phone</td><td>Find by phone</td><td>-</td></tr>
+        <tr><td>PUT</td><td><code>/customers/{id}</code></td><td>xpresswallet.customers.update</td><td>Update customer</td><td>At least one mutable field</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <details><summary>Create Customer Payload</summary>
+    <pre>{
+  "first_name": "Ada",
+  "last_name": "Lovelace",
+  "email": "ada@example.test",
+  "phone": "+2348012345678",
+  "metadata": {"tier": "gold"}
+}</pre>
+  </details>
+</section>
+
+<section id="wallets" class="section">
+  <h2>Wallets</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>M</th><th>Path</th><th>Name</th><th>Description</th><th>Validation</th></tr></thead>
+      <tbody>
+        <tr><td>GET</td><td><code>/wallets</code></td><td>wallets.index</td><td>List wallets</td><td>-</td></tr>
+        <tr><td>GET</td><td><code>/wallets/customer/{customerId}</code></td><td>wallets.customer</td><td>Wallets for a customer</td><td>-</td></tr>
+        <tr><td>POST</td><td><code>/wallets</code></td><td>wallets.store</td><td>Create wallet</td><td><code>customer_id|customer_identifier,currency,type</code></td></tr>
+        <tr><td>POST</td><td><code>/wallets/{id}/credit</code></td><td>wallets.credit</td><td>Credit wallet</td><td><code>amount</code> required</td></tr>
+        <tr><td>POST</td><td><code>/wallets/{id}/debit</code></td><td>wallets.debit</td><td>Debit wallet</td><td><code>amount</code> required</td></tr>
+        <tr><td>POST</td><td><code>/wallets/{id}/freeze</code></td><td>wallets.freeze</td><td>Freeze wallet</td><td>-</td></tr>
+        <tr><td>POST</td><td><code>/wallets/{id}/unfreeze</code></td><td>wallets.unfreeze</td><td>Unfreeze wallet</td><td>-</td></tr>
+        <tr><td>POST</td><td><code>/wallets/batch/credit</code></td><td>wallets.batch.credit</td><td>Batch credit</td><td>array of credits</td></tr>
+        <tr><td>POST</td><td><code>/wallets/batch/debit</code></td><td>wallets.batch.debit</td><td>Batch debit</td><td>array of debits</td></tr>
+        <tr><td>POST</td><td><code>/wallets/customer/batch/credit</code></td><td>wallets.customer.batch.credit</td><td>Batch credit via customer IDs</td><td>array of entries</td></tr>
+        <tr><td>POST</td><td><code>/wallets/fund-sandbox</code></td><td>wallets.fund-sandbox</td><td>Fund sandbox merchant wallet</td><td><code>amount</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="transactions" class="section">
+  <h2>Transactions</h2>
+  <table><thead><tr><th>M</th><th>Path</th><th>Name</th><th>Description</th></tr></thead><tbody>
+    <tr><td>GET</td><td><code>/transactions</code></td><td>transactions.merchant</td><td>List merchant transactions (query filters)</td></tr>
+    <tr><td>GET</td><td><code>/transactions/{reference}</code></td><td>transactions.show</td><td>Transaction details</td></tr>
+  </tbody></table>
+</section>
+
+<section id="transfers" class="section">
+  <h2>Transfers</h2>
+  <table><thead><tr><th>M</th><th>Path</th><th>Name</th><th>Description</th><th>Validation</th></tr></thead><tbody>
+    <tr><td>GET</td><td><code>/transfers/banks</code></td><td>transfers.banks</td><td>List supported banks</td><td>-</td></tr>
+    <tr><td>GET</td><td><code>/transfers/account-details</code></td><td>transfers.account-details</td><td>Resolve account details</td><td><code>bank_code,account_number</code> query</td></tr>
+    <tr><td>POST</td><td><code>/transfers/bank</code></td><td>transfers.bank</td><td>Single bank transfer</td><td>bank_code, account_number, amount, currency</td></tr>
+    <tr><td>POST</td><td><code>/transfers/bank/customer</code></td><td>transfers.bank.customer</td><td>Customer bank transfer</td><td>customer_id + bank transfer fields</td></tr>
+    <tr><td>POST</td><td><code>/transfers/bank/batch</code></td><td>transfers.bank.batch</td><td>Batch bank transfers</td><td>transfers[] array</td></tr>
+    <tr><td>POST</td><td><code>/transfers/wallet</code></td><td>transfers.wallet</td><td>Wallet to wallet transfer</td><td>source_wallet_id,destination_wallet_id,amount</td></tr>
+  </tbody></table>
+</section>
+
+<section id="cards" class="section">
+  <h2>Cards</h2>
+  <table><thead><tr><th>M</th><th>Path</th><th>Name</th><th>Description</th><th>Validation</th></tr></thead><tbody>
+    <tr><td>GET</td><td><code>/cards</code></td><td>cards.index</td><td>List cards</td><td>-</td></tr>
+    <tr><td>POST</td><td><code>/cards/setup</code></td><td>cards.setup</td><td>Initiate card setup</td><td>customer_id,type,currency</td></tr>
+    <tr><td>POST</td><td><code>/cards/activate</code></td><td>cards.activate</td><td>Activate card</td><td>card_id,code</td></tr>
+    <tr><td>GET</td><td><code>/cards/{cardId}/balance</code></td><td>cards.balance</td><td>Card balance</td><td>-</td></tr>
+    <tr><td>POST</td><td><code>/cards/fund</code></td><td>cards.fund</td><td>Fund card</td><td>card_id,amount,currency</td></tr>
+  </tbody></table>
+</section>
+
+<section id="merchant" class="section">
+  <h2>Merchant</h2>
+  <table><thead><tr><th>M</th><th>Path</th><th>Name</th><th>Description</th></tr></thead><tbody>
+    <tr><td>POST</td><td><code>/merchant/password/request-change</code></td><td>merchant.password.request-change</td><td>Request password reset code</td></tr>
+    <tr><td>POST</td><td><code>/merchant/password/change</code></td><td>merchant.password.change</td><td>Change password using reset code</td></tr>
+    <tr><td>POST</td><td><code>/merchant/verify</code></td><td>merchant.verify</td><td>Verify merchant</td></tr>
+    <tr><td>POST</td><td><code>/merchant/resend-verification</code></td><td>merchant.resend-verification</td><td>Resend verification code</td></tr>
+    <tr><td>POST</td><td><code>/merchant/resend-activation</code></td><td>merchant.resend-activation</td><td>Resend activation code</td></tr>
+    <tr><td>POST</td><td><code>/merchant/complete-registration</code></td><td>merchant.complete-registration</td><td>Complete registration</td></tr>
+    <tr><td>GET</td><td><code>/merchant/profile</code></td><td>merchant.profile</td><td>Merchant profile</td></tr>
+    <tr><td>GET</td><td><code>/merchant/access-keys</code></td><td>merchant.access-keys</td><td>List access keys</td></tr>
+    <tr><td>POST</td><td><code>/merchant/access-keys/generate</code></td><td>merchant.access-keys.generate</td><td>Generate new access keys</td></tr>
+    <tr><td>GET</td><td><code>/merchant/account-mode</code></td><td>merchant.account-mode</td><td>Current account mode</td></tr>
+    <tr><td>POST</td><td><code>/merchant/account-mode/switch</code></td><td>merchant.account-mode.switch</td><td>Switch account mode</td></tr>
+    <tr><td>GET</td><td><code>/merchant/summary</code></td><td>merchant.summary</td><td>Summary metrics</td></tr>
+    <tr><td>GET</td><td><code>/merchant/wallet</code></td><td>merchant.wallet</td><td>Merchant wallet info</td></tr>
+  </tbody></table>
+</section>
+
+<section id="team" class="section">
+  <h2>Team</h2>
+  <table><thead><tr><th>M</th><th>Path</th><th>Name</th><th>Description</th></tr></thead><tbody>
+    <tr><td>GET</td><td><code>/team/invitations</code></td><td>team.invitations</td><td>List invitations</td></tr>
+    <tr><td>POST</td><td><code>/team/invitations</code></td><td>team.invitations.invite</td><td>Invite member</td></tr>
+    <tr><td>POST</td><td><code>/team/invitations/resend</code></td><td>team.invitations.resend</td><td>Resend invitation</td></tr>
+    <tr><td>POST</td><td><code>/team/invitations/accept</code></td><td>team.invitations.accept</td><td>Accept invitation</td></tr>
+    <tr><td>GET</td><td><code>/team/members</code></td><td>team.members</td><td>List members</td></tr>
+    <tr><td>GET</td><td><code>/team/merchants</code></td><td>team.merchants</td><td>List accessible merchants</td></tr>
+    <tr><td>POST</td><td><code>/team/merchants/switch</code></td><td>team.merchants.switch</td><td>Switch active merchant</td></tr>
+    <tr><td>GET</td><td><code>/team/permissions</code></td><td>team.permissions</td><td>List permissions</td></tr>
+    <tr><td>GET</td><td><code>/team/roles</code></td><td>team.roles</td><td>List roles</td></tr>
+  </tbody></table>
+</section>
+
+<section class="section">
+  <h2>Validation Reference</h2>
+  <p>This table summarises required fields; see source <code>src/Http/Requests/*</code> for complete rules (including lengths, enums).</p>
+  <table><thead><tr><th>Form Request</th><th>Required</th><th>Notes</th></tr></thead><tbody>
+    <tr><td>CustomerCreateRequest</td><td>first_name,last_name,email,phone</td><td>country optional ISO2</td></tr>
+    <tr><td>CustomerUpdateRequest</td><td>(any subset)</td><td>"sometimes" semantics</td></tr>
+    <tr><td>WalletCreateRequest</td><td>customer_id|customer_identifier,currency,type</td><td>mutually exclusive id fields</td></tr>
+    <tr><td>WalletAdjustRequest</td><td>amount</td><td>credit/debit operations</td></tr>
+    <tr><td>TransferBankRequest</td><td>bank_code,account_number,amount,currency</td><td></td></tr>
+    <tr><td>TransferBankCustomerRequest</td><td>customer_id + bank transfer fields</td><td></td></tr>
+    <tr><td>TransferBankBatchRequest</td><td>transfers[]</td><td>1..100 entries</td></tr>
+    <tr><td>TransferWalletRequest</td><td>source_wallet_id,destination_wallet_id,amount,currency</td><td>dest != source</td></tr>
+    <tr><td>CardSetupRequest</td><td>customer_id,type,currency</td><td></td></tr>
+    <tr><td>CardFundRequest</td><td>card_id,amount,currency</td><td></td></tr>
+    <tr><td>MerchantCompleteRegistrationRequest</td><td>business_name,business_email,business_phone,country,contact_first_name,contact_last_name,contact_email,contact_phone</td><td>docs[] optional</td></tr>
+    <tr><td>MerchantChangePasswordRequest</td><td>reset_code,password,password_confirmation</td><td>min length 8</td></tr>
+    <tr><td>TeamInviteRequest</td><td>email,role</td><td></td></tr>
+    <tr><td>TeamResendInvitationRequest</td><td>invitation_id</td><td></td></tr>
+    <tr><td>TeamAcceptInvitationRequest</td><td>invitation_id,code</td><td></td></tr>
+  </tbody></table>
+</section>
+
+<section class="section">
+  <h2>Error Handling</h2>
+  <ul>
+    <li><strong>422 Validation:</strong> Standard Laravel JSON: <code>{ message: "The given data was invalid.", errors: { field: ["..."] } }</code></li>
+    <li><strong>Domain Exceptions:</strong> Mapped to specific exception classes; convert to JSON by your global handler.</li>
+    <li><strong>Circuit Breaker:</strong> Returns early with breaker open exception (HTTP 503 if you map it).</li>
+    <li><strong>Rate Limiting:</strong> Automatic retry attempts before bubbling a <code>RateLimitException</code>.</li>
+  </ul>
+</section>
+
+<section class="section">
+  <h2>Version</h2>
+  <p>Guide generated for package version <code>0.3.0</code>.</p>
+</section>
+
+<footer>
+  <p>MIT License. Contributions welcome. See <code>CHANGELOG.md</code> for history.</p>
+</footer>
+</body>
+</html>

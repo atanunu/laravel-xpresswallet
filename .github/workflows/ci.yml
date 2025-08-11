@@ -47,6 +47,10 @@ jobs:
         run: |
           if [ -f phpstan.neon.dist ]; then vendor/bin/phpstan analyse --no-progress; fi
 
+      - name: Static Analysis (Psalm)
+        run: |
+          if [ -f psalm.xml ] || [ -f psalm.xml.dist ]; then vendor/bin/psalm --output-format=compact || true; fi
+
       - name: Run tests (no coverage)
         env:
           DB_CONNECTION: sqlite

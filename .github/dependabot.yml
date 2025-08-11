@@ -5,11 +5,13 @@ updates:
     schedule:
       interval: "weekly"
     labels: ["deps","github-actions"]
+  open-pull-requests-limit: 10
   - package-ecosystem: "composer"
     directory: "/"
     schedule:
       interval: "weekly"
     labels: ["deps","composer"]
+  open-pull-requests-limit: 10
     allow:
       - dependency-type: "direct"
     ignore:

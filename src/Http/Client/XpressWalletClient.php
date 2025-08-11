@@ -30,6 +30,24 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Core HTTP client encapsulating all resilience & cross-cutting concerns when calling Xpress Wallet.
+ *
+ * Features implemented (mapped to numbered design notes):
+ * 1. Retries with exponential backoff + full jitter (network / 5xx) & rate-limit adaptive waits.
+ * 2. Simple pagination helper (paginate()).
+ * 3. Domain specific exception mapping (auth, rate limit, password change/reset, verification).
+ * 4. Structured API call logging persisted via LogsApiCalls trait (DB + optional body logging).
+ * 5. Response caching for GET requests.
+ * 6. Automatic correlation ID header injection.
+ * 8. Circuit breaker with half‑open trial after cool down.
+ * 10. Full jitter strategy for both generic retries and 429 retry-after windows.
+ * 11. Webhook secret rotation supported elsewhere (verification layer) – client remains agnostic.
+ * 12. Idempotency key header added automatically for unsafe methods.
+ * 14. Optional OpenTelemetry spans if OTEL SDK present.
+ *
+ * Public surface intentionally returns decoded associative arrays for flexibility.
+ */
 class XpressWalletClient implements XpressWalletClientContract
 {
     use LogsApiCalls;
@@ -44,12 +62,17 @@ class XpressWalletClient implements XpressWalletClientContract
         protected LoggerInterface $logger,
     ) {}
 
+    /** Return self for fluent style (mainly for facade contract parity). */
     public function client(): self
     {
         return $this;
     }
 
     /** @return array<string,mixed> */
+    /**
+     * Perform initial login exchange capturing access & refresh tokens from response headers.
+     * Accepts optional runtime overrides; falls back to configured credentials.
+     */
     public function login(?string $email = null, ?string $password = null): array
     {
         $email = $email ?? $this->config['email'] ?? null;
@@ -117,6 +140,7 @@ class XpressWalletClient implements XpressWalletClientContract
     }
 
     /** @return array<string,mixed> */
+    /** Refresh access token using stored refresh token and persist new pair. */
     public function refresh(): array
     {
         $refresh = $this->tokens->refresh();
@@ -174,6 +198,7 @@ class XpressWalletClient implements XpressWalletClientContract
     }
 
     /** @return array<string,mixed> */
+    /** Invalidate current session tokens server-side (client still retains stored values). */
     public function logout(): array
     {
         $started = microtime(true);
@@ -222,6 +247,7 @@ class XpressWalletClient implements XpressWalletClientContract
     }
 
     /** @return array<string,string> */
+    /** Build auth + content headers or throw if tokens missing. */
     protected function headers(): array
     {
         $access = $this->tokens->access();
@@ -242,6 +268,7 @@ class XpressWalletClient implements XpressWalletClientContract
      * @param  array<string,mixed>  $headers
      * @return array<string,mixed>
      */
+    /** Mask sensitive token headers in logged output unless masking disabled. */
     protected function scrubHeaders(array $headers): array
     {
         if (! config('xpresswallet.mask_tokens', true)) {
@@ -302,6 +329,7 @@ class XpressWalletClient implements XpressWalletClientContract
      * @param  array<string,mixed>  $query
      * @return array<string,mixed>
      */
+    /** Perform a GET request with optional query parameters. */
     public function get(string $uri, array $query = []): array
     {
         return $this->request('GET', $uri, ['query' => $query]);
@@ -336,6 +364,7 @@ class XpressWalletClient implements XpressWalletClientContract
      * @param  array<string,mixed>  $payload
      * @return array<string,mixed>
      */
+    /** POST helper forwarding JSON payload. */
     public function post(string $uri, array $payload = []): array
     {
         return $this->request('POST', $uri, ['json' => $payload], $payload);
@@ -345,6 +374,7 @@ class XpressWalletClient implements XpressWalletClientContract
      * @param  array<string,mixed>  $payload
      * @return array<string,mixed>
      */
+    /** PUT helper forwarding JSON payload. */
     public function put(string $uri, array $payload = []): array
     {
         return $this->request('PUT', $uri, ['json' => $payload], $payload);
@@ -354,6 +384,7 @@ class XpressWalletClient implements XpressWalletClientContract
      * @param  array<string,mixed>  $payload
      * @return array<string,mixed>
      */
+    /** PATCH helper forwarding JSON payload. */
     public function patch(string $uri, array $payload = []): array
     {
         return $this->request('PATCH', $uri, ['json' => $payload], $payload);
@@ -363,6 +394,16 @@ class XpressWalletClient implements XpressWalletClientContract
      * @param  array<string,mixed>  $options
      * @param  array<string,mixed>|null  $loggedPayload
      * @return array<string,mixed>
+     */
+    /**
+     * Low-level request pipeline applying:
+     * - Auth header injection (non auth/* endpoints)
+     * - Correlation / idempotency headers
+     * - Circuit breaker guard
+     * - Response caching (GET)
+     * - OpenTelemetry span (if enabled)
+     * - Structured logging
+     * - Retry / rate-limit backoff logic & circuit breaker failure counting
      */
     protected function request(string $method, string $uri, array $options = [], ?array $loggedPayload = null, int $attempt = 1): array
     {

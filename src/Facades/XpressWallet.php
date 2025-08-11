@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Atanunu\XpressWallet\Http\Client\Endpoints\Customers customers()
  * @method static \Atanunu\XpressWallet\Http\Client\Endpoints\Wallets wallets()
  * @method static \Atanunu\XpressWallet\Http\Client\Endpoints\Transactions transactions()
+ * @method static \Atanunu\XpressWallet\Http\Client\Endpoints\Transfers transfers()
+ * @method static \Atanunu\XpressWallet\Http\Client\Endpoints\Cards cards()
+ * @method static \Atanunu\XpressWallet\Http\Client\Endpoints\Merchant merchant()
+ * @method static \Atanunu\XpressWallet\Http\Client\Endpoints\Team team()
  */
 class XpressWallet extends Facade
 {
