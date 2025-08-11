@@ -19,7 +19,7 @@ php artisan migrate
 Add to your `.env`:
 
 ```env
-XPRESSWALLET_BASE_URL=https://<sandbox-or-live-base-url>
+XPRESSWALLET_BASE_URL=https://payment.xpress-wallet.com
 XPRESSWALLET_EMAIL=merchant@example.com   # raw email (we encode before login)
 XPRESSWALLET_PASSWORD=your-secret        # raw password (we encode before login)
 XPRESSWALLET_CACHE_TTL=3300

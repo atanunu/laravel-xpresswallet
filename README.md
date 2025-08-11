@@ -28,6 +28,7 @@ This is a Laravel SDK for the Providus Bank XpressWallet API. It handles:
 * Publishable config & migrations
 * Testbench-powered tests, GitHub Actions CI, PHPStan level 8, Psalm (complementary), mutation testing config
 * Public endpoint coverage dashboard: https://atanunu.github.io/laravel-xpresswallet/
+* HTML API Guide (optional proxy routes): https://atanunu.github.io/laravel-xpresswallet/api-guide.html
 * Automatic Packagist sync on pushes & tags (set secrets `PACKAGIST_USERNAME` & `PACKAGIST_TOKEN`).
 
 ## Installation
